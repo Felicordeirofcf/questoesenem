@@ -1,0 +1,160 @@
+[33mcommit 4e4575d9937ee6f9c94eccd9a3bf1dafcf844d7a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:51:56 2025 -0300
+
+    Removendo arquivo grande e ajustando gitignore
+
+ .gitignore    | 32 [32m+++++++++++++++++++[m[31m-------------[m
+ next-env.d.ts |  5 [32m+++++[m
+ 2 files changed, 24 insertions(+), 13 deletions(-)
+
+[33mcommit bbb87ff69c37d38c40e9f4eb12bcfeef69bf88ad[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:51:03 2025 -0300
+
+    Removendo arquivo grande e ajustando gitignore
+
+ .gitignore | 3 [32m+++[m
+ 1 file changed, 3 insertions(+)
+
+[33mcommit f2473d55ca0010947b892b7cdcc2edec8e88ae13[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:44:35 2025 -0300
+
+    first commistssSS
+
+ Site enem novo.zip | Bin [31m247828816[m -> [32m0[m bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+[33mcommit 95b3add4cbc32419e6551472dfd601ed9df7b35d[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:43:00 2025 -0300
+
+    first commistsSs
+
+ Site enem novo.zip                   | Bin [31m0[m -> [32m247828816[m bytes
+ next.config.ts                       |   3 [32m+[m[31m-[m
+ package-lock.json                    | 135 [32m+[m[31m--------------[m
+ package.json                         |   1 [31m-[m
+ src/app/admin/areas/page.tsx         |  92 [32m+++++[m[31m------[m
+ src/app/admin/dashboard/page.tsx     |  97 [32m++++[m[31m-------[m
+ src/app/admin/importar/page.tsx      | 201 [32m++++++++++++++++[m[31m-------[m
+ src/app/admin/page.tsx               |   1 [31m-[m
+ src/app/admin/questoes/[id]/page.tsx | 309 [32m++++++++++++++++++++++++++++[m[31m-------[m
+ src/app/admin/questoes/page.tsx      |  65 [32m+++[m[31m-----[m
+ src/app/estatisticas/page.tsx        |  63 [32m+++[m[31m----[m
+ src/app/lib/store.ts                 | 201 [32m+++++++++++++++++++++++[m
+ src/app/questoes/page.tsx            | 246 [32m++++++++++++++++++++++++[m[31m----[m
+ 13 files changed, 935 insertions(+), 479 deletions(-)
+
+[33mcommit 511c4c028116208b4dcc11466d664e029bf0f573[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:32:38 2025 -0300
+
+    first commistss
+
+ next.config.ts                  |  5 [32m++++[m[31m-[m
+ src/app/admin/importar/page.tsx | 42 [32m+++++++++++++++++++++++++++[m[31m--------------[m
+ 2 files changed, 32 insertions(+), 15 deletions(-)
+
+[33mcommit ac039d288531ca421815eb07d6d52421edf25efd[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:20:15 2025 -0300
+
+    first commist
+
+ src/app/lib/supabaseClient.ts | 6 [32m++[m[31m----[m
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+[33mcommit 2e04872ff962cf35f23504fecea6066408f5cd41[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:15:10 2025 -0300
+
+    first commit
+
+ src/app/admin/dashboard/page.tsx     |  98 [32m+++++++[m[31m----[m
+ src/app/admin/importar/page.tsx      | 168 [32m++++[m[31m---------------[m
+ src/app/admin/questoes/[id]/page.tsx | 310 [32m+++++++[m[31m----------------------------[m
+ src/app/admin/questoes/page.tsx      |  66 [32m+++++[m[31m---[m
+ src/app/estatisticas/page.tsx        |  64 [32m++++[m[31m----[m
+ src/app/questoes/page.tsx            | 247 [32m++++[m[31m------------------------[m
+ 6 files changed, 267 insertions(+), 686 deletions(-)
+
+[33mcommit 800098e9830c168ebbd50e79d1ba227bd809203d[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 10:02:32 2025 -0300
+
+    first commit
+
+ src/app/admin/areas/page.tsx | 93 [32m++++++++++++++++++++++++[m[31m--------------------[m
+ 1 file changed, 51 insertions(+), 42 deletions(-)
+
+[33mcommit 31c770e73de921d7af439b1759ca6522387b1784[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 09:56:46 2025 -0300
+
+    first commit
+
+ src/app/admin/areas/page.tsx         | 3 [32m++[m[31m-[m
+ src/app/admin/dashboard/page.tsx     | 3 [32m++[m[31m-[m
+ src/app/admin/importar/page.tsx      | 3 [32m++[m[31m-[m
+ src/app/admin/page.tsx               | 1 [32m+[m
+ src/app/admin/questoes/[id]/page.tsx | 3 [32m++[m[31m-[m
+ src/app/admin/questoes/page.tsx      | 3 [32m++[m[31m-[m
+ src/app/estatisticas/page.tsx        | 3 [32m++[m[31m-[m
+ src/app/lib/supabaseClient.ts        | 3 [32m++[m[31m-[m
+ src/app/questoes/page.tsx            | 3 [32m++[m[31m-[m
+ 9 files changed, 17 insertions(+), 8 deletions(-)
+
+[33mcommit eab630855199e0a069dbc75006136906fda66609[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 09:45:51 2025 -0300
+
+    first commit
+
+ package-lock.json                    | 135 [32m++++++++++++++++[m[31m-[m
+ package.json                         |   1 [32m+[m
+ src/app/admin/areas/page.tsx         |   2 [32m+[m[31m-[m
+ src/app/admin/dashboard/page.tsx     |   2 [32m+[m[31m-[m
+ src/app/admin/importar/page.tsx      |   2 [32m+[m[31m-[m
+ src/app/admin/questoes/[id]/page.tsx |   2 [32m+[m[31m-[m
+ src/app/admin/questoes/page.tsx      |   2 [32m+[m[31m-[m
+ src/app/estatisticas/page.tsx        |   2 [32m+[m[31m-[m
+ src/app/lib/store.ts                 | 201 [31m-------------------------[m
+ src/app/lib/supabaseClient.ts        | 279 [32m+++++++++++++++++++++++++++++++++++[m
+ src/app/questoes/page.tsx            |   2 [32m+[m[31m-[m
+ 11 files changed, 420 insertions(+), 210 deletions(-)
+
+[33mcommit 515de2336fbb7e75e4291de29ceaf74ba0a2e8ce[m
+Author: Felipe Cordeiro Ferreira <felicordeirofcf@gmail.com>
+Date:   Tue Apr 29 09:05:39 2025 -0300
+
+    first commit
+
+ .gitignore                           |   41 [32m+[m
+ README.md                            |   36 [32m+[m
+ eslint.config.mjs                    |   16 [32m+[m
+ next.config.ts                       |    7 [32m+[m
+ package-lock.json                    | 6019 [32m++++++++++++++++++++++++++++++++++[m
+ package.json                         |   31 [32m+[m
+ postcss.config.mjs                   |    5 [32m+[m
+ public/file.svg                      |    1 [32m+[m
+ public/globe.svg                     |    1 [32m+[m
+ public/next.svg                      |    1 [32m+[m
+ public/vercel.svg                    |    1 [32m+[m
+ public/window.svg                    |    1 [32m+[m
+ src/app/admin/areas/page.tsx         |  192 [32m++[m
+ src/app/admin/dashboard/page.tsx     |  160 [32m+[m
+ src/app/admin/importar/page.tsx      |  264 [32m++[m
+ src/app/admin/page.tsx               |   95 [32m+[m
+ src/app/admin/questoes/[id]/page.tsx |  359 [32m++[m
+ src/app/admin/questoes/page.tsx      |  149 [32m+[m
+ src/app/estatisticas/page.tsx        |  185 [32m++[m
+ src/app/favicon.ico                  |  Bin [31m0[m -> [32m25931[m bytes
+ src/app/globals.css                  |   26 [32m+[m
+ src/app/layout.tsx                   |   22 [32m+[m
+ src/app/lib/store.ts                 |  201 [32m++[m
+ src/app/page.tsx                     |  124 [32m+[m
+ src/app/questoes/page.tsx            |  299 [32m++[m
+ tsconfig.json                        |   27 [32m+[m
+ 26 files changed, 8263 insertions(+)
