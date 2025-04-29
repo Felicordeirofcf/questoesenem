@@ -1,20 +1,18 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useQuestoesStore, type Area } from '@/app/lib/store';
+import {
+  type Area,
+  buscarAreas,
+  adicionarArea as adicionarAreaService,
+  atualizarArea as atualizarAreaService,
+  excluirArea as excluirAreaService,
+} from '@/app/lib/supabaseClient';
 
 export default function GerenciarAreasPage() {
-  const {
-    areas,
-    adicionarArea,
-    atualizarArea,
-    excluirArea,
-    getAreasGerenciadas,
-  } = useQuestoesStore();
-
+  const [areas, setAreas] = useState<Area[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [novaAreaNome, setNovaAreaNome] = useState('');
@@ -22,34 +20,39 @@ export default function GerenciarAreasPage() {
   const [nomeEditado, setNomeEditado] = useState('');
   const router = useRouter();
 
-  // Verificar autenticação
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuthAndLoad = async () => {
       const auth = localStorage.getItem('adminAuthenticated');
       if (auth !== 'true') {
         router.push('/admin');
       } else {
         setIsAuthenticated(true);
+        const resultado = await buscarAreas();
+        setAreas(resultado);
       }
       setIsLoading(false);
     };
 
-    checkAuth();
+    checkAuthAndLoad();
   }, [router]);
 
-  const handleAdicionarArea = (e: React.FormEvent) => {
+  const handleAdicionarArea = async (e: React.FormEvent) => {
     e.preventDefault();
     if (novaAreaNome.trim() === '') {
       alert('O nome da área não pode estar vazio.');
       return;
     }
-    adicionarArea(novaAreaNome.trim());
+    await adicionarAreaService(novaAreaNome.trim());
     setNovaAreaNome('');
+    const atualizadas = await buscarAreas();
+    setAreas(atualizadas);
   };
 
-  const handleExcluirArea = (id: number) => {
-    if (confirm('Tem certeza que deseja excluir esta área? Questões associadas a esta área podem precisar ser atualizadas.')) {
-      excluirArea(id);
+  const handleExcluirArea = async (id: number) => {
+    if (confirm('Tem certeza que deseja excluir esta área?')) {
+      await excluirAreaService(id);
+      const atualizadas = await buscarAreas();
+      setAreas(atualizadas);
     }
   };
 
@@ -58,11 +61,13 @@ export default function GerenciarAreasPage() {
     setNomeEditado(area.nome);
   };
 
-  const salvarEdicao = () => {
+  const salvarEdicao = async () => {
     if (editandoArea && nomeEditado.trim() !== '') {
-      atualizarArea({ ...editandoArea, nome: nomeEditado.trim() });
+      await atualizarAreaService({ ...editandoArea, nome: nomeEditado.trim() });
       setEditandoArea(null);
       setNomeEditado('');
+      const atualizadas = await buscarAreas();
+      setAreas(atualizadas);
     } else {
       alert('O nome da área não pode estar vazio.');
     }
@@ -78,26 +83,21 @@ export default function GerenciarAreasPage() {
   }
 
   if (!isAuthenticated) {
-    return null; // Redirecionamento já foi feito no useEffect
+    return null;
   }
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">Gerenciar Áreas</h1>
-          <div className="space-x-4">
-            <Link href="/admin/dashboard" className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md transition-colors">
-              Voltar ao Dashboard
-            </Link>
-          </div>
+          <Link href="/admin/dashboard" className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md transition-colors">
+            Voltar ao Dashboard
+          </Link>
         </div>
       </header>
 
-      {/* Conteúdo Principal */}
       <div className="container mx-auto px-4 py-8">
-        {/* Adicionar Nova Área */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Adicionar Nova Área</h2>
           <form onSubmit={handleAdicionarArea} className="flex gap-4">
@@ -118,7 +118,6 @@ export default function GerenciarAreasPage() {
           </form>
         </div>
 
-        {/* Lista de Áreas */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4">Áreas Existentes</h2>
           <div className="overflow-x-auto">
@@ -131,7 +130,7 @@ export default function GerenciarAreasPage() {
                 </tr>
               </thead>
               <tbody>
-                {getAreasGerenciadas().map((area) => (
+                {areas.map((area) => (
                   <tr key={area.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">{area.id}</td>
                     <td className="py-3 px-4">
@@ -189,4 +188,3 @@ export default function GerenciarAreasPage() {
     </main>
   );
 }
-

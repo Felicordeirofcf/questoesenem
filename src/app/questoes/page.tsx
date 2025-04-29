@@ -2,18 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useQuestoesStore, type Questao } from '@/app/lib/store';
+import {
+  buscarQuestoes,
+  getEdicoesDistintas,
+  getAnosDistintos,
+  getAssuntosDistintos,
+  buscarAreas,
+  type Questao
+} from '@/app/lib/supabaseClient';
 
 export default function QuestoesPage() {
   // Estados
-  const { questoes, getEdicoes, getAnos, getAreas, getAssuntos } = useQuestoesStore();
+  const [questoes, setQuestoes] = useState<Questao[]>([]);
   const [filteredQuestoes, setFilteredQuestoes] = useState<Questao[]>([]);
   const [edicaoFiltro, setEdicaoFiltro] = useState('Todas as Edições');
   const [anoFiltro, setAnoFiltro] = useState('Todos os Anos');
   const [areaFiltro, setAreaFiltro] = useState('Todas as Áreas');
   const [assuntoFiltro, setAssuntoFiltro] = useState('Todos os Assuntos');
   const [mostrarSociologia, setMostrarSociologia] = useState(false);
-  const [respostasUsuario, setRespostasUsuario] = useState<{[key: number]: number}>({});
+  const [respostasUsuario, setRespostasUsuario] = useState<{ [key: number]: number }>({});
   const [mostrarGabaritos, setMostrarGabaritos] = useState(false);
 
   // Listas de opções para os filtros
@@ -22,38 +29,47 @@ export default function QuestoesPage() {
   const [areas, setAreas] = useState<string[]>([]);
   const [assuntos, setAssuntos] = useState<string[]>([]);
 
-  // Carregar opções de filtros
+  // Carregar dados iniciais
   useEffect(() => {
-    setEdicoes(getEdicoes());
-    setAnos(getAnos());
-    setAreas(getAreas());
-    setAssuntos(getAssuntos());
-  }, [questoes, getEdicoes, getAnos, getAreas, getAssuntos]);
+    async function carregarDados() {
+      const [questoesData, edicoesData, anosData, assuntosData, areasData] = await Promise.all([
+        buscarQuestoes(),
+        getEdicoesDistintas(),
+        getAnosDistintos(),
+        getAssuntosDistintos(),
+        buscarAreas()
+      ]);
+
+      setQuestoes(questoesData);
+      setEdicoes(edicoesData);
+      setAnos(anosData);
+      setAssuntos(assuntosData);
+      setAreas(areasData.map(area => area.nome)); // Corrige para extrair só o nome
+    }
+
+    carregarDados();
+  }, []);
 
   // Aplicar filtros
   useEffect(() => {
     let result = [...questoes];
-    
+
     if (edicaoFiltro !== 'Todas as Edições') {
       result = result.filter(q => q.edicao === edicaoFiltro);
     }
-    
     if (anoFiltro !== 'Todos os Anos') {
       result = result.filter(q => q.ano === parseInt(anoFiltro));
     }
-    
     if (areaFiltro !== 'Todas as Áreas') {
       result = result.filter(q => q.area === areaFiltro);
     }
-    
     if (assuntoFiltro !== 'Todos os Assuntos') {
       result = result.filter(q => q.assunto === assuntoFiltro);
     }
-    
     if (mostrarSociologia) {
       result = result.filter(q => q.assunto === 'Sociologia');
     }
-    
+
     setFilteredQuestoes(result);
   }, [questoes, edicaoFiltro, anoFiltro, areaFiltro, assuntoFiltro, mostrarSociologia]);
 
@@ -71,7 +87,7 @@ export default function QuestoesPage() {
     setMostrarGabaritos(true);
   };
 
-  // Limpar todas as respostas
+  // Limpar respostas
   const limparRespostas = () => {
     setRespostasUsuario({});
     setMostrarGabaritos(false);
@@ -86,6 +102,7 @@ export default function QuestoesPage() {
   };
 
   return (
+    
     <main className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">

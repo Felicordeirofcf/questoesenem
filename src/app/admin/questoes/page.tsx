@@ -3,40 +3,48 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useQuestoesStore, type Questao } from '@/app/lib/store';
+import {
+  buscarQuestoes,
+  excluirQuestao as excluirQuestaoService,
+  type Questao,
+} from '@/app/lib/supabaseClient'; // AGORA usa direto o supabaseClient
 
 export default function GerenciarQuestoesPage() {
-  const { questoes, excluirQuestao } = useQuestoesStore();
+  const [questoes, setQuestoes] = useState<Questao[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [filtro, setFiltro] = useState('');
   const router = useRouter();
 
-  // Verificar autenticação
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuthAndLoad = async () => {
       const auth = localStorage.getItem('adminAuthenticated');
       if (auth !== 'true') {
         router.push('/admin');
       } else {
         setIsAuthenticated(true);
+        const questoesCarregadas = await buscarQuestoes();
+        setQuestoes(questoesCarregadas);
       }
       setIsLoading(false);
     };
 
-    checkAuth();
+    checkAuthAndLoad();
   }, [router]);
 
-  // Função para excluir questão
-  const handleExcluirQuestao = (id: number) => {
+  const handleExcluirQuestao = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir esta questão?')) {
-      excluirQuestao(id);
+      const sucesso = await excluirQuestaoService(id);
+      if (sucesso) {
+        setQuestoes(prev => prev.filter(q => q.id !== id));
+      } else {
+        alert('Erro ao excluir a questão.');
+      }
     }
   };
 
-  // Filtrar questões
-  const questoesFiltradas = questoes.filter(q => 
-    filtro === '' || 
+  const questoesFiltradas = questoes.filter(q =>
+    filtro === '' ||
     q.edicao.toLowerCase().includes(filtro.toLowerCase()) ||
     q.area.toLowerCase().includes(filtro.toLowerCase()) ||
     q.assunto.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -48,7 +56,7 @@ export default function GerenciarQuestoesPage() {
   }
 
   if (!isAuthenticated) {
-    return null; // Redirecionamento já foi feito no useEffect
+    return null;
   }
 
   return (
@@ -79,7 +87,7 @@ export default function GerenciarQuestoesPage() {
               </Link>
             </div>
           </div>
-          
+
           {/* Filtro */}
           <div className="mb-6">
             <label htmlFor="filtro" className="block text-sm font-medium text-gray-700 mb-1">Filtrar questões:</label>
@@ -92,7 +100,7 @@ export default function GerenciarQuestoesPage() {
               onChange={(e) => setFiltro(e.target.value)}
             />
           </div>
-          
+
           {/* Tabela de Questões */}
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white">
@@ -142,6 +150,7 @@ export default function GerenciarQuestoesPage() {
               </tbody>
             </table>
           </div>
+
         </div>
       </div>
     </main>

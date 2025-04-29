@@ -3,7 +3,16 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useQuestoesStore, type Questao } from '@/app/lib/store';
+import {
+  buscarQuestaoPorId,
+  adicionarQuestao as adicionarQuestaoService,
+  atualizarQuestao as atualizarQuestaoService,
+  getEdicoesDistintas,
+  getAnosDistintos,
+  getAssuntosDistintos,
+  buscarAreas,
+  type Questao,
+} from '@/app/lib/supabaseClient';
 
 export default function GerenciarQuestaoPage() {
   const router = useRouter();
@@ -12,16 +21,6 @@ export default function GerenciarQuestaoPage() {
   const isNovaQuestao = questaoIdParam === 'nova';
   const questaoId = isNovaQuestao ? null : parseInt(questaoIdParam as string);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const {
-    questoes,
-    adicionarQuestao,
-    atualizarQuestao,
-    getEdicoes,
-    getAnos,
-    getAreas,
-    getAssuntos,
-  } = useQuestoesStore();
 
   const [questao, setQuestao] = useState<Partial<Questao>>({
     edicao: '',
@@ -35,74 +34,66 @@ export default function GerenciarQuestaoPage() {
     alternativas: ['', '', '', '', ''],
     gabarito: 0,
   });
+
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Listas de opções para os filtros (para sugestões ou validação, se necessário)
   const [edicoes, setEdicoes] = useState<string[]>([]);
   const [anos, setAnos] = useState<number[]>([]);
   const [areas, setAreas] = useState<string[]>([]);
   const [assuntos, setAssuntos] = useState<string[]>([]);
 
-  // Verificar autenticação e carregar dados da questão (se editando)
   useEffect(() => {
-    const checkAuthAndLoadData = () => {
+    const checkAuthAndLoadData = async () => {
       const auth = localStorage.getItem('adminAuthenticated');
       if (auth !== 'true') {
         router.push('/admin');
-      } else {
-        setIsAuthenticated(true);
-        // Carregar opções existentes
-        const currentEdicoes = getEdicoes();
-        const currentAnos = getAnos();
-        const currentAreas = getAreas();
-        const currentAssuntos = getAssuntos();
-        setEdicoes(currentEdicoes);
-        setAnos(currentAnos);
-        setAreas(currentAreas);
-        setAssuntos(currentAssuntos);
-
-        if (!isNovaQuestao && questaoId) {
-          const questaoExistente = questoes.find(q => q.id === questaoId);
-          if (questaoExistente) {
-            setQuestao(questaoExistente);
-            if (questaoExistente.imagem) {
-              setImageBase64(questaoExistente.imagem);
-            }
-          } else {
-            // Questão não encontrada, redirecionar ou mostrar erro
-            alert('Questão não encontrada!');
-            router.push('/admin/dashboard');
+        return;
+      }
+    
+      setIsAuthenticated(true);
+    
+      const [edicoes, anos, assuntos, areasRaw] = await Promise.all([
+        getEdicoesDistintas(),
+        getAnosDistintos(),
+        getAssuntosDistintos(),
+        buscarAreas(),
+      ]);
+    
+      setEdicoes(edicoes);
+      setAnos(anos);
+      setAssuntos(assuntos);
+      setAreas(areasRaw.map(a => a.nome)); // Aqui é onde corrige o problema
+    
+      if (!isNovaQuestao && questaoId) {
+        const questaoExistente = await buscarQuestaoPorId(questaoId);
+        if (questaoExistente) {
+          setQuestao(questaoExistente);
+          if (questaoExistente.imagem) {
+            setImageBase64(questaoExistente.imagem);
           }
         } else {
-          // Definir valores padrão para nova questão com base nas opções existentes, se houver
-          setQuestao(prev => ({
-            ...prev,
-            edicao: currentEdicoes[0] || '',
-            area: currentAreas[0] || '',
-          }));
+          alert('Questão não encontrada!');
+          router.push('/admin/dashboard');
         }
+      } else {
+        setQuestao(prev => ({
+          ...prev,
+          edicao: edicoes[0] || '',
+          area: areasRaw[0]?.nome || '', // Também pode corrigir direto aqui se quiser usar áreas brutas
+        }));
       }
+    
       setIsLoading(false);
-    };
+        };
 
     checkAuthAndLoadData();
-  }, [router, questaoId, isNovaQuestao, questoes, getEdicoes, getAnos, getAreas, getAssuntos]);
+  }, [router, isNovaQuestao, questaoId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setQuestao(prev => ({ ...prev, [name]: name === 'ano' ? parseInt(value) : value }));
-  };
-
-  const handleAlternativaChange = (index: number, value: string) => {
-    const novasAlternativas = [...(questao.alternativas || [])];
-    novasAlternativas[index] = value;
-    setQuestao(prev => ({ ...prev, alternativas: novasAlternativas }));
-  };
-
-  const handleGabaritoChange = (index: number) => {
-    setQuestao(prev => ({ ...prev, gabarito: index }));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,23 +117,31 @@ export default function GerenciarQuestaoPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAlternativaChange = (index: number, value: string) => {
+    const novasAlternativas = [...(questao.alternativas || [])];
+    novasAlternativas[index] = value;
+    setQuestao(prev => ({ ...prev, alternativas: novasAlternativas }));
+  };
+
+  const handleGabaritoChange = (index: number) => {
+    setQuestao(prev => ({ ...prev, gabarito: index }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validar dados (simplificado)
     if (!questao.edicao || !questao.ano || !questao.area || !questao.assunto || !questao.enunciado || (questao.alternativas || []).some(alt => !alt)) {
       alert('Preencha todos os campos obrigatórios.');
       return;
     }
 
-    const questaoCompleta = questao as Omit<Questao, 'id'>;
-
     if (isNovaQuestao) {
-      adicionarQuestao(questaoCompleta);
+      await adicionarQuestaoService(questao as Omit<Questao, 'id'>);
       alert('Questão salva com sucesso!');
     } else {
-      atualizarQuestao({ ...questaoCompleta, id: questaoId as number });
+      await atualizarQuestaoService({ ...(questao as Questao), id: questaoId! });
       alert('Questão atualizada com sucesso!');
     }
+
     router.push('/admin/dashboard');
   };
 
@@ -151,7 +150,7 @@ export default function GerenciarQuestaoPage() {
   }
 
   if (!isAuthenticated) {
-    return null; // Redirecionamento já foi feito no useEffect
+    return null;
   }
 
   return (

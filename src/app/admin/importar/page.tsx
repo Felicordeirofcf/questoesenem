@@ -1,14 +1,15 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import * as XLSX from 'xlsx'; // Biblioteca para ler arquivos Excel
-import { useQuestoesStore, type Questao } from '@/app/lib/store';
+import * as XLSX from 'xlsx';
+import {
+  importarQuestoes as importarQuestoesService,
+  type Questao,
+} from '@/app/lib/supabaseClient';
 
 export default function ImportarExcelPage() {
-  const { importarQuestoes } = useQuestoesStore();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
@@ -17,7 +18,6 @@ export default function ImportarExcelPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
 
-  // Verificar autenticação
   useEffect(() => {
     const checkAuth = () => {
       const auth = localStorage.getItem('adminAuthenticated');
@@ -58,13 +58,11 @@ export default function ImportarExcelPage() {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet) as any[];
 
-        // Mapear colunas do Excel para o formato Questao
         const questoesProcessadas = json.map((row, index) => {
-          // Validação básica das colunas esperadas
           if (!row['Edicao'] || !row['Ano'] || !row['Area'] || !row['Assunto'] || !row['Enunciado'] || !row['Alternativa A'] || !row['Alternativa B'] || !row['Alternativa C'] || !row['Alternativa D'] || !row['Alternativa E'] || !row['Gabarito']) {
             throw new Error(`Erro na linha ${index + 2}: Colunas obrigatórias ausentes ou nomeadas incorretamente.`);
           }
-          
+
           const alternativas = [
             String(row['Alternativa A']),
             String(row['Alternativa B']),
@@ -72,12 +70,12 @@ export default function ImportarExcelPage() {
             String(row['Alternativa D']),
             String(row['Alternativa E']),
           ];
-          
+
           const gabaritoChar = String(row['Gabarito']).toUpperCase();
-          const gabaritoIndex = gabaritoChar.charCodeAt(0) - 65; // A=0, B=1, ...
-          
+          const gabaritoIndex = gabaritoChar.charCodeAt(0) - 65;
+
           if (gabaritoIndex < 0 || gabaritoIndex > 4) {
-             throw new Error(`Erro na linha ${index + 2}: Gabarito inválido ('${row['Gabarito']}'). Use A, B, C, D ou E.`);
+            throw new Error(`Erro na linha ${index + 2}: Gabarito inválido ('${row['Gabarito']}'). Use A, B, C, D ou E.`);
           }
 
           const ano = parseInt(row['Ano']);
@@ -114,23 +112,21 @@ export default function ImportarExcelPage() {
     reader.readAsBinaryString(file);
   };
 
-  const handleImportarQuestoes = () => {
+  const handleImportarQuestoes = async () => {
     if (questoesImportadas.length === 0) {
       setError('Nenhuma questão processada para importar.');
       return;
     }
     try {
-      importarQuestoes(questoesImportadas);
+      await importarQuestoesService(questoesImportadas);
       setSuccessMessage('Importação concluída com sucesso!');
       setQuestoesImportadas([]);
       setFile(null);
       setError(null);
-      // Opcional: redirecionar ou limpar o formulário
-      // router.push('/admin/dashboard');
     } catch (err: any) {
-       console.error("Erro ao importar questões:", err);
-       setError(`Erro ao importar questões: ${err.message}`);
-       setSuccessMessage(null);
+      console.error("Erro ao importar questões:", err);
+      setError(`Erro ao importar questões: ${err.message}`);
+      setSuccessMessage(null);
     }
   };
 
@@ -139,12 +135,11 @@ export default function ImportarExcelPage() {
   }
 
   if (!isAuthenticated) {
-    return null; // Redirecionamento já foi feito no useEffect
+    return null;
   }
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">Importar Questões via Excel</h1>
@@ -154,12 +149,10 @@ export default function ImportarExcelPage() {
         </div>
       </header>
 
-      {/* Conteúdo Principal */}
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold mb-6">Importar de Arquivo Excel (.xlsx)</h2>
 
-          {/* Instruções e Download de Modelo */}
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
             <h3 className="text-lg font-semibold mb-2 text-blue-800">Instruções</h3>
             <p className="text-gray-700 mb-2">
@@ -171,14 +164,8 @@ export default function ImportarExcelPage() {
             <p className="text-gray-700 mb-2">
               - A coluna 'Gabarito' deve conter a letra da alternativa correta (A, B, C, D ou E).
             </p>
-            {/* <p className="text-gray-700">
-              <a href="/caminho/para/modelo.xlsx" download className="text-blue-600 hover:underline font-medium">
-                Baixar modelo de exemplo
-              </a>
-            </p> */}
           </div>
 
-          {/* Seleção de Arquivo */}
           <div className="mb-4">
             <label htmlFor="excelFile" className="block text-sm font-medium text-gray-700 mb-1">
               Selecione o arquivo Excel:
@@ -192,7 +179,6 @@ export default function ImportarExcelPage() {
             />
           </div>
 
-          {/* Botão Processar */}
           {file && (
             <button
               onClick={processarExcel}
@@ -203,7 +189,6 @@ export default function ImportarExcelPage() {
             </button>
           )}
 
-          {/* Mensagens de Erro/Sucesso */}
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
@@ -215,7 +200,6 @@ export default function ImportarExcelPage() {
             </div>
           )}
 
-          {/* Pré-visualização e Botão Importar */}
           {questoesImportadas.length > 0 && (
             <div className="mt-6">
               <h3 className="text-xl font-semibold mb-4">Pré-visualização ({questoesImportadas.length} questões)</h3>
@@ -232,7 +216,7 @@ export default function ImportarExcelPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {questoesImportadas.slice(0, 10).map((q, index) => ( // Mostra apenas as 10 primeiras
+                    {questoesImportadas.slice(0, 10).map((q, index) => (
                       <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="py-2 px-3">{q.edicao}</td>
                         <td className="py-2 px-3">{q.ano}</td>
@@ -243,7 +227,7 @@ export default function ImportarExcelPage() {
                       </tr>
                     ))}
                     {questoesImportadas.length > 10 && (
-                       <tr><td colSpan={6} className="py-2 px-3 text-center text-gray-500">... e mais {questoesImportadas.length - 10} questões.</td></tr>
+                      <tr><td colSpan={6} className="py-2 px-3 text-center text-gray-500">... e mais {questoesImportadas.length - 10} questões.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -261,4 +245,3 @@ export default function ImportarExcelPage() {
     </main>
   );
 }
-

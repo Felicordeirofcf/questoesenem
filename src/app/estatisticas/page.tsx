@@ -12,7 +12,11 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { useQuestoesStore, type Questao } from '@/app/lib/store';
+import {
+  buscarQuestoes,
+  buscarAreas,
+  type Questao
+} from '@/app/lib/supabaseClient';
 
 ChartJS.register(
   CategoryScale,
@@ -31,11 +35,23 @@ type Estatisticas = {
 };
 
 export default function EstatisticasPage() {
-  const { questoes, getAreasGerenciadas } = useQuestoesStore();
+  const [questoes, setQuestoes] = useState<Questao[]>([]);
+  const [areas, setAreas] = useState<string[]>([]);
   const [estatisticas, setEstatisticas] = useState<Estatisticas | null>(null);
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas as Categorias');
 
-  // Calcular estatísticas com base nas questões do store
+  // Carregar questões e áreas
+  useEffect(() => {
+    const fetchData = async () => {
+      const questoesDB = await buscarQuestoes();
+      const areasDB = await buscarAreas();
+      setQuestoes(questoesDB);
+      setAreas(areasDB.map(area => area.nome));
+    };
+    fetchData();
+  }, []);
+
+  // Calcular estatísticas com base nas questões
   useEffect(() => {
     const calcularEstatisticas = (questoes: Questao[], filtro: string): Estatisticas => {
       const questoesFiltradas = filtro === 'Todas as Categorias' 
@@ -45,14 +61,10 @@ export default function EstatisticasPage() {
       const totalQuestoes = questoesFiltradas.length;
       const temas = new Set(questoesFiltradas.map(q => q.assunto));
       const totalTemas = temas.size;
-      
-      // Usar as áreas gerenciadas em vez de categorias fixas
-      const categorias = getAreasGerenciadas().map(area => area.nome);
 
       const temasFrequentes: { [key: string]: number } = {};
       questoesFiltradas.forEach(q => {
         temasFrequentes[q.assunto] = (temasFrequentes[q.assunto] || 0) + 1;
-        // Incluir assuntos adicionais se existirem
         if (q.assunto2) {
           temasFrequentes[q.assunto2] = (temasFrequentes[q.assunto2] || 0) + 1;
         }
@@ -60,23 +72,23 @@ export default function EstatisticasPage() {
           temasFrequentes[q.assunto3] = (temasFrequentes[q.assunto3] || 0) + 1;
         }
       });
-      
-      // Ordenar e pegar top 10
+
       const sortedTemas = Object.entries(temasFrequentes)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 10);
-      const topTemas: { [key: string]: number } = Object.fromEntries(sortedTemas);
 
       return {
         totalQuestoes,
         totalTemas,
-        categorias,
-        temasFrequentes: topTemas
+        categorias: areas,
+        temasFrequentes: Object.fromEntries(sortedTemas),
       };
     };
 
-    setEstatisticas(calcularEstatisticas(questoes, categoriaFiltro));
-  }, [questoes, categoriaFiltro, getAreasGerenciadas]);
+    if (questoes.length > 0) {
+      setEstatisticas(calcularEstatisticas(questoes, categoriaFiltro));
+    }
+  }, [questoes, categoriaFiltro, areas]);
 
   const chartData = {
     labels: estatisticas ? Object.keys(estatisticas.temasFrequentes) : [],
@@ -94,22 +106,14 @@ export default function EstatisticasPage() {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Top 10 Temas Mais Frequentes',
-      },
+      legend: { position: 'top' as const },
+      title: { display: true, text: 'Top 10 Temas Mais Frequentes' },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
+    scales: { y: { beginAtZero: true } },
   };
 
   return (
+
     <main className="min-h-screen bg-gray-50">
       {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">
