@@ -67,7 +67,7 @@ export default function QuestoesPage() {
       result = result.filter(q => q.assunto === assuntoFiltro);
     }
     if (mostrarSociologia) {
-      result = result.filter(q => q.assunto === 'Sociologia');
+      result = result.filter(q => q.area === 'Sociologia');
     }
 
     setFilteredQuestoes(result);
