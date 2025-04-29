@@ -3,9 +3,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Configurações do Supabase
-const supabaseUrl = 'https://rpmasbijblaghshlftkh.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwbWFzYmlqYmxhZ2hzaGxmdGtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5MjkxMjIsImV4cCI6MjA2MTUwNTEyMn0.-bewKzvVvplYCU2Djpbuj4HIxpcrTwxo2yM9YvOrg1A';
-
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- Tipos ---
