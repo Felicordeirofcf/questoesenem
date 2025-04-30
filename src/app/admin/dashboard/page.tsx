@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import {
   getAssuntosDistintos,
   buscarAreas,
   type Questao,
-} from '@/app/lib/supabaseClient';
+} from '@/app/lib/supabaseClient'; // Ajuste o caminho se necessário
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -98,6 +99,10 @@ export default function AdminDashboardPage() {
             <Link href="/admin/importar" className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md">
               Importar Excel
             </Link>
+            {/* Link Adicionado para Configurações */}
+            <Link href="/admin/configuracoes" className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+              Configurações
+            </Link>
           </div>
         </div>
 
@@ -170,3 +175,4 @@ export default function AdminDashboardPage() {
     </main>
   );
 }
+
