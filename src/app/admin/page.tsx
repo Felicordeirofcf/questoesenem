@@ -1,19 +1,44 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// Default credentials if none are set in localStorage
+const DEFAULT_USERNAME = 'admin';
+const DEFAULT_PASSWORD = 'admin403871';
+
 export default function AdminLoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
+  // Function to get credentials from localStorage or use defaults
+  const getCredentials = () => {
+    const storedUsername = localStorage.getItem('adminUsername');
+    const storedPassword = localStorage.getItem('adminPassword');
+    return {
+      username: storedUsername || DEFAULT_USERNAME,
+      password: storedPassword || DEFAULT_PASSWORD,
+    };
+  };
+
+  // Set default credentials on first load if not already set
+  useEffect(() => {
+    if (!localStorage.getItem('adminUsername') || !localStorage.getItem('adminPassword')) {
+      localStorage.setItem('adminUsername', DEFAULT_USERNAME);
+      localStorage.setItem('adminPassword', DEFAULT_PASSWORD);
+      console.log('Default admin credentials set in localStorage.');
+    }
+  }, []);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const { username: storedUsername, password: storedPassword } = getCredentials();
 
-    if (username === 'admin' && password === 'admin403871') {
+    if (usernameInput === storedUsername && passwordInput === storedPassword) {
       localStorage.setItem('adminAuthenticated', 'true');
       router.push('/admin/dashboard');
     } else {
@@ -56,8 +81,8 @@ export default function AdminLoginPage() {
                 type="text"
                 id="username"
                 className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
                 required
               />
             </div>
@@ -70,21 +95,34 @@ export default function AdminLoginPage() {
                 type="password"
                 id="password"
                 className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-md transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-md transition-colors mb-4"
             >
               Entrar
             </button>
           </form>
+
+          {/* Aviso de Contato WhatsApp */}
+          <div className="mt-6 text-center text-sm text-gray-600">
+            <p>
+              Caso perca o acesso, entre em contato pelo WhatsApp:
+              <br />
+              <a href="https://wa.me/5521987708652" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                21 98770-8652 (Felipe Ferreira)
+              </a>
+            </p>
+          </div>
+
         </div>
       </div>
     </main>
   );
 }
+
