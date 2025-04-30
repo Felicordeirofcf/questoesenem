@@ -7,29 +7,34 @@ import Link from 'next/link';
 
 export default function AdminConfiguracoesPage() {
   const [currentUsername, setCurrentUsername] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
+  // Avoid storing currentPassword in state for security
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClient, setIsClient] = useState(false); // State to track client-side rendering
   const router = useRouter();
 
   useEffect(() => {
-    // Check if admin is authenticated
-    const isAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
-    if (!isAuthenticated) {
+    // This effect runs only on the client side
+    setIsClient(true);
+
+    // Check authentication only on the client
+    const authStatus = localStorage.getItem('adminAuthenticated') === 'true';
+    setIsAuthenticated(authStatus);
+
+    if (!authStatus) {
       router.push('/admin'); // Redirect to login if not authenticated
       return;
     }
 
-    // Load current credentials (optional, for display or verification if needed)
+    // Load current username only on the client
     const storedUsername = localStorage.getItem('adminUsername') || '';
-    const storedPassword = localStorage.getItem('adminPassword') || '';
-    setCurrentUsername(storedUsername); // Store for potential future use/display
-    // Avoid storing the actual password in state for security reasons unless necessary for verification
+    setCurrentUsername(storedUsername);
 
-  }, [router]);
+  }, [router]); // Dependency array includes router
 
   const handleUpdateCredentials = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +52,7 @@ export default function AdminConfiguracoesPage() {
       return;
     }
 
-    // Update credentials in localStorage
+    // Update credentials in localStorage (safe here as it's event handler)
     try {
       localStorage.setItem('adminUsername', newUsername);
       localStorage.setItem('adminPassword', newPassword);
@@ -56,7 +61,7 @@ export default function AdminConfiguracoesPage() {
       setNewUsername('');
       setNewPassword('');
       setConfirmPassword('');
-      // Optionally, update the state holding the 'current' username if displayed
+      // Update the state holding the 'current' username
       setCurrentUsername(newUsername);
     } catch (err) {
       setError('Erro ao atualizar credenciais. Tente novamente.');
@@ -65,15 +70,19 @@ export default function AdminConfiguracoesPage() {
   };
 
   const handleLogout = () => {
+    // Safe here as it's event handler
     localStorage.removeItem('adminAuthenticated');
     router.push('/admin');
   };
 
-  // Render nothing or a loading state until authentication check is complete
-  if (localStorage.getItem('adminAuthenticated') !== 'true') {
-    return null; // Or a loading spinner
+  // Render nothing until client-side check is complete and authenticated
+  if (!isClient || !isAuthenticated) {
+    // You can return a loading spinner here if preferred
+    // e.g., return <div className="min-h-screen flex items-center justify-center">Verificando autenticação...</div>;
+    return null;
   }
 
+  // Render the actual page content only if on client and authenticated
   return (
     <main className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
@@ -111,6 +120,9 @@ export default function AdminConfiguracoesPage() {
           )}
 
           <form onSubmit={handleUpdateCredentials}>
+            {/* Display current username (optional) */}
+            {/* <p className="mb-4 text-sm text-gray-600">Usuário atual: {currentUsername}</p> */}
+
             <div className="mb-4">
               <label htmlFor="newUsername" className="block text-gray-700 font-medium mb-2">
                 Novo Usuário
