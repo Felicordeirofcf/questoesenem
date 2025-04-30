@@ -79,7 +79,7 @@ export default function GerenciarAreasPage() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-black">Carregando...</div>;
   }
 
   if (!isAuthenticated) {
@@ -87,7 +87,7 @@ export default function GerenciarAreasPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <main className="min-h-screen bg-gray-200 flex flex-col text-black">
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">Gerenciar Áreas</h1>
@@ -98,31 +98,31 @@ export default function GerenciarAreasPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-gray-100 rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Adicionar Nova Área</h2>
-          <form onSubmit={handleAdicionarArea} className="flex gap-4">
+          <form onSubmit={handleAdicionarArea} className="flex gap-4 flex-col sm:flex-row">
             <input
               type="text"
               value={novaAreaNome}
               onChange={(e) => setNovaAreaNome(e.target.value)}
               placeholder="Nome da nova área"
-              className="flex-grow p-2 border border-gray-300 rounded-md"
+              className="flex-grow p-3 border border-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
             >
               Adicionar
             </button>
           </form>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-gray-100 rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4">Áreas Existentes</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
+            <table className="min-w-full bg-white text-black rounded-md">
+              <thead className="bg-gray-200">
                 <tr>
                   <th className="py-3 px-4 text-left">ID</th>
                   <th className="py-3 px-4 text-left">Nome</th>
@@ -139,7 +139,7 @@ export default function GerenciarAreasPage() {
                           type="text"
                           value={nomeEditado}
                           onChange={(e) => setNomeEditado(e.target.value)}
-                          className="p-1 border border-gray-300 rounded-md"
+                          className="w-full p-2 border border-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       ) : (
                         area.nome
@@ -150,7 +150,7 @@ export default function GerenciarAreasPage() {
                         <>
                           <button
                             onClick={salvarEdicao}
-                            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm transition-colors"
                           >
                             Salvar
                           </button>

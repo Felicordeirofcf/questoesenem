@@ -7,7 +7,7 @@ import {
   buscarQuestoes,
   excluirQuestao as excluirQuestaoService,
   type Questao,
-} from '@/app/lib/supabaseClient'; // AGORA usa direto o supabaseClient
+} from '@/app/lib/supabaseClient';
 
 export default function GerenciarQuestoesPage() {
   const [questoes, setQuestoes] = useState<Questao[]>([]);
@@ -52,7 +52,7 @@ export default function GerenciarQuestoesPage() {
   );
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-black">Carregando...</div>;
   }
 
   if (!isAuthenticated) {
@@ -60,22 +60,23 @@ export default function GerenciarQuestoesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <main className="min-h-screen bg-gray-200 flex flex-col text-black">
       {/* Cabeçalho */}
-      <header className="bg-blue-600 text-white py-6">
+      <header className="bg-blue-600 text-white py-6 shadow-md">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">Gerenciar Questões</h1>
-          <div className="space-x-4">
-            <Link href="/admin/dashboard" className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md transition-colors">
-              Voltar ao Dashboard
-            </Link>
-          </div>
+          <Link
+            href="/admin/dashboard"
+            className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md transition-colors"
+          >
+            Voltar ao Dashboard
+          </Link>
         </div>
       </header>
 
-      {/* Conteúdo Principal */}
+      {/* Conteúdo */}
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-gray-100 rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-wrap justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Lista de Questões</h2>
             <div className="flex gap-4">
@@ -90,30 +91,30 @@ export default function GerenciarQuestoesPage() {
 
           {/* Filtro */}
           <div className="mb-6">
-            <label htmlFor="filtro" className="block text-sm font-medium text-gray-700 mb-1">Filtrar questões:</label>
+            <label htmlFor="filtro" className="block text-sm font-medium mb-1">Filtrar questões:</label>
             <input
               type="text"
               id="filtro"
-              className="w-full p-2 border border-gray-300 rounded-md"
               placeholder="Digite para filtrar por edição, área, assunto ou conteúdo..."
+              className="w-full p-3 border border-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
             />
           </div>
 
-          {/* Tabela de Questões */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
+          {/* Tabela */}
+          <div className="overflow-x-auto rounded-md">
+            <table className="min-w-full bg-white text-sm text-black border border-gray-200">
+              <thead className="bg-gray-100 text-left text-gray-700">
                 <tr>
-                  <th className="py-3 px-4 text-left">ID</th>
-                  <th className="py-3 px-4 text-left">Edição</th>
-                  <th className="py-3 px-4 text-left">Ano</th>
-                  <th className="py-3 px-4 text-left">Área</th>
-                  <th className="py-3 px-4 text-left">Assunto</th>
-                  <th className="py-3 px-4 text-left">Enunciado (início)</th>
-                  <th className="py-3 px-4 text-left">Gabarito</th>
-                  <th className="py-3 px-4 text-left">Ações</th>
+                  <th className="py-3 px-4">ID</th>
+                  <th className="py-3 px-4">Edição</th>
+                  <th className="py-3 px-4">Ano</th>
+                  <th className="py-3 px-4">Área</th>
+                  <th className="py-3 px-4">Assunto</th>
+                  <th className="py-3 px-4">Enunciado</th>
+                  <th className="py-3 px-4">Gabarito</th>
+                  <th className="py-3 px-4">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -128,12 +129,15 @@ export default function GerenciarQuestoesPage() {
                       <td className="py-3 px-4">{questao.enunciado.substring(0, 50)}...</td>
                       <td className="py-3 px-4">{String.fromCharCode(65 + questao.gabarito)}</td>
                       <td className="py-3 px-4 flex gap-2">
-                        <Link href={`/admin/questoes/${questao.id}`} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors">
+                        <Link
+                          href={`/admin/questoes/${questao.id}`}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm"
+                        >
                           Editar
                         </Link>
-                        <button 
+                        <button
                           onClick={() => handleExcluirQuestao(questao.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
                         >
                           Excluir
                         </button>
@@ -142,7 +146,7 @@ export default function GerenciarQuestoesPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-4 px-4 text-center text-gray-500">
+                    <td colSpan={8} className="py-4 px-4 text-center text-gray-600">
                       Nenhuma questão encontrada.
                     </td>
                   </tr>
@@ -150,7 +154,6 @@ export default function GerenciarQuestoesPage() {
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </main>

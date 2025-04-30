@@ -19,16 +19,13 @@ export default function ImportarExcelPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = () => {
-      const auth = localStorage.getItem('adminAuthenticated');
-      if (auth !== 'true') {
-        router.push('/admin');
-      } else {
-        setIsAuthenticated(true);
-      }
-      setIsLoading(false);
-    };
-    checkAuth();
+    const auth = localStorage.getItem('adminAuthenticated');
+    if (auth !== 'true') {
+      router.push('/admin');
+    } else {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
   }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,8 +100,7 @@ export default function ImportarExcelPage() {
       }
     };
 
-    reader.onerror = (err) => {
-      console.error("Erro ao ler arquivo:", err);
+    reader.onerror = () => {
       setError('Erro ao ler o arquivo selecionado.');
       setQuestoesImportadas([]);
     };
@@ -130,52 +126,41 @@ export default function ImportarExcelPage() {
     }
   };
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-black">Carregando...</div>;
+  if (!isAuthenticated) return null;
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <main className="min-h-screen bg-gray-200 flex flex-col text-black">
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">Importar Questões via Excel</h1>
-          <Link href="/admin/dashboard" className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md transition-colors">
+          <Link href="/admin/dashboard" className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-md">
             Voltar ao Dashboard
           </Link>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-gray-100 rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold mb-6">Importar de Arquivo Excel (.xlsx)</h2>
 
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
             <h3 className="text-lg font-semibold mb-2 text-blue-800">Instruções</h3>
-            <p className="text-gray-700 mb-2">
-              Prepare um arquivo Excel (.xlsx) com as seguintes colunas na primeira linha:
-            </p>
+            <p className="mb-2">Prepare um arquivo com as colunas:</p>
             <code className="block bg-gray-100 p-2 rounded text-sm mb-2">
-              Edicao | Ano | Area | Assunto | Enunciado | Alternativa A | Alternativa B | Alternativa C | Alternativa D | Alternativa E | Gabarito
+              Edicao | Ano | Area | Assunto | Enunciado | Alternativa A | B | C | D | E | Gabarito
             </code>
-            <p className="text-gray-700 mb-2">
-              - A coluna 'Gabarito' deve conter a letra da alternativa correta (A, B, C, D ou E).
-            </p>
+            <p>- A coluna <strong>Gabarito</strong> deve conter apenas A, B, C, D ou E.</p>
           </div>
 
           <div className="mb-4">
-            <label htmlFor="excelFile" className="block text-sm font-medium text-gray-700 mb-1">
-              Selecione o arquivo Excel:
-            </label>
+            <label htmlFor="excelFile" className="block text-sm font-medium mb-1">Selecione o arquivo Excel:</label>
             <input
               type="file"
               id="excelFile"
               accept=".xlsx"
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="w-full p-2 border border-gray-300 rounded-md bg-white"
             />
           </div>
 
@@ -183,22 +168,14 @@ export default function ImportarExcelPage() {
             <button
               onClick={processarExcel}
               disabled={questoesImportadas.length > 0}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 mb-4"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mb-4 transition-colors"
             >
               Processar Arquivo
             </button>
           )}
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          {successMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {successMessage}
-            </div>
-          )}
+          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+          {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{successMessage}</div>}
 
           {questoesImportadas.length > 0 && (
             <div className="mt-6">
@@ -211,7 +188,7 @@ export default function ImportarExcelPage() {
                       <th className="py-2 px-3 text-left">Ano</th>
                       <th className="py-2 px-3 text-left">Área</th>
                       <th className="py-2 px-3 text-left">Assunto</th>
-                      <th className="py-2 px-3 text-left">Enunciado (início)</th>
+                      <th className="py-2 px-3 text-left">Enunciado</th>
                       <th className="py-2 px-3 text-left">Gabarito</th>
                     </tr>
                   </thead>

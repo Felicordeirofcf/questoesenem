@@ -40,7 +40,6 @@ export default function EstatisticasPage() {
   const [estatisticas, setEstatisticas] = useState<Estatisticas | null>(null);
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas as Categorias');
 
-  // Carregar questões e áreas
   useEffect(() => {
     const fetchData = async () => {
       const questoesDB = await buscarQuestoes();
@@ -51,11 +50,10 @@ export default function EstatisticasPage() {
     fetchData();
   }, []);
 
-  // Calcular estatísticas com base nas questões
   useEffect(() => {
     const calcularEstatisticas = (questoes: Questao[], filtro: string): Estatisticas => {
-      const questoesFiltradas = filtro === 'Todas as Categorias' 
-        ? questoes 
+      const questoesFiltradas = filtro === 'Todas as Categorias'
+        ? questoes
         : questoes.filter(q => q.area === filtro);
 
       const totalQuestoes = questoesFiltradas.length;
@@ -65,12 +63,8 @@ export default function EstatisticasPage() {
       const temasFrequentes: { [key: string]: number } = {};
       questoesFiltradas.forEach(q => {
         temasFrequentes[q.assunto] = (temasFrequentes[q.assunto] || 0) + 1;
-        if (q.assunto2) {
-          temasFrequentes[q.assunto2] = (temasFrequentes[q.assunto2] || 0) + 1;
-        }
-        if (q.assunto3) {
-          temasFrequentes[q.assunto3] = (temasFrequentes[q.assunto3] || 0) + 1;
-        }
+        if (q.assunto2) temasFrequentes[q.assunto2] = (temasFrequentes[q.assunto2] || 0) + 1;
+        if (q.assunto3) temasFrequentes[q.assunto3] = (temasFrequentes[q.assunto3] || 0) + 1;
       });
 
       const sortedTemas = Object.entries(temasFrequentes)
@@ -113,8 +107,7 @@ export default function EstatisticasPage() {
   };
 
   return (
-
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-200 text-black">
       {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
@@ -135,7 +128,7 @@ export default function EstatisticasPage() {
 
       {/* Conteúdo Principal */}
       <div className="container mx-auto px-4 py-8">
-        {/* Resumo das Estatísticas */}
+        {/* Estatísticas Rápidas */}
         <section className="grid md:grid-cols-3 gap-4 mb-8">
           <div className="bg-blue-100 p-6 rounded-lg shadow-md text-center">
             <h3 className="text-lg font-semibold text-blue-800 mb-2">Total de Questões</h3>
@@ -151,30 +144,29 @@ export default function EstatisticasPage() {
           </div>
         </section>
 
-        {/* Filtro por Categoria (agora Área) */}
+        {/* Filtro de Categoria */}
         <section className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Filtrar por Área</h2>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setCategoriaFiltro("Todas as Categorias")} // Mantém o estado como "Todas as Categorias" para lógica
+              onClick={() => setCategoriaFiltro("Todas as Categorias")}
               className={`px-4 py-2 rounded-md transition-colors ${categoriaFiltro === "Todas as Categorias" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
             >
               Todas as Áreas
             </button>
-            {/* Usar as áreas gerenciadas para os botões de filtro */}
-            {estatisticas?.categorias.map(areaNome => (
+            {estatisticas?.categorias.map(area => (
               <button
-                key={areaNome}
-                onClick={() => setCategoriaFiltro(areaNome)}
-                className={`px-4 py-2 rounded-md transition-colors ${categoriaFiltro === areaNome ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+                key={area}
+                onClick={() => setCategoriaFiltro(area)}
+                className={`px-4 py-2 rounded-md transition-colors ${categoriaFiltro === area ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
               >
-                {areaNome}
+                {area}
               </button>
             ))}
           </div>
         </section>
 
-        {/* Gráfico de Temas */}
+        {/* Gráfico */}
         <section className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4">Top 10 Temas Mais Frequentes</h2>
           {estatisticas ? (

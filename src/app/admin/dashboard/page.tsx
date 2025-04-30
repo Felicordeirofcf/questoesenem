@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,7 @@ import {
   getAssuntosDistintos,
   buscarAreas,
   type Questao,
-} from '@/app/lib/supabaseClient'; // Ajuste o caminho se necessário
+} from '@/app/lib/supabaseClient';
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +19,6 @@ export default function AdminDashboardPage() {
   const [assuntos, setAssuntos] = useState<string[]>([]);
   const router = useRouter();
 
-  // Verifica autenticação ao carregar
   useEffect(() => {
     const auth = localStorage.getItem('adminAuthenticated');
     if (auth !== 'true') {
@@ -31,7 +29,6 @@ export default function AdminDashboardPage() {
     setIsLoading(false);
   }, [router]);
 
-  // Busca dados somente após autenticação
   useEffect(() => {
     if (isAuthenticated) {
       buscarQuestoes().then(setQuestoes);
@@ -55,7 +52,7 @@ export default function AdminDashboardPage() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-black">Carregando...</div>;
   }
 
   if (!isAuthenticated) {
@@ -63,7 +60,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <main className="min-h-screen bg-gray-200 flex flex-col text-black">
       {/* Cabeçalho */}
       <header className="bg-blue-600 text-white py-6">
         <div className="container mx-auto px-4 flex justify-between items-center">
@@ -85,7 +82,7 @@ export default function AdminDashboardPage() {
       {/* Conteúdo Principal */}
       <div className="container mx-auto px-4 py-8">
         {/* Menu de Navegação */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-gray-100 rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-wrap gap-4">
             <Link href="/admin/dashboard" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
               Dashboard
@@ -99,8 +96,7 @@ export default function AdminDashboardPage() {
             <Link href="/admin/importar" className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md">
               Importar Excel
             </Link>
-            {/* Link Adicionado para Configurações */}
-            <Link href="/admin/configuracoes" className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+            <Link href="/admin/configuracoes" className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">
               Configurações
             </Link>
           </div>
@@ -123,17 +119,17 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tabela de Questões Recentes */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-gray-100 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Questões Recentes</h2>
-            <Link href="/admin/questoes/nova" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+            <Link href="/admin/questoes/nova" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors">
               Adicionar Nova Questão
             </Link>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
+            <table className="min-w-full bg-white text-black">
+              <thead className="bg-gray-200">
                 <tr>
                   <th className="py-3 px-4 text-left">ID</th>
                   <th className="py-3 px-4 text-left">Edição</th>
@@ -175,4 +171,3 @@ export default function AdminDashboardPage() {
     </main>
   );
 }
-
