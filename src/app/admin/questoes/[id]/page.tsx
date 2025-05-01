@@ -203,7 +203,7 @@ export default function GerenciarQuestaoPage() {
                     id={id}
                     name={id}
                     list="assuntos-list"
-                    value={questao[id] || ''}
+                    value={(questao as Record<string, any>)[id] || ''}
                     onChange={handleChange}
                     className="w-full p-2 border border-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
