@@ -57,15 +57,21 @@ export default function EstatisticasPage() {
         : questoes.filter(q => q.area === filtro);
 
       const totalQuestoes = questoesFiltradas.length;
-      const temas = new Set(questoesFiltradas.map(q => q.assunto));
-      const totalTemas = temas.size;
+      const todosOsTemas = new Set<string>();
+      questoesFiltradas.forEach(q => {
+        if (q.assunto) todosOsTemas.add(q.assunto);
+        if (q.assunto2) todosOsTemas.add(q.assunto2);
+        if (q.assunto3) todosOsTemas.add(q.assunto3);
+      });
+      const totalTemas = todosOsTemas.size;
 
       const temasFrequentes: { [key: string]: number } = {};
-      questoesFiltradas.forEach(q => {
-        temasFrequentes[q.assunto] = (temasFrequentes[q.assunto] || 0) + 1;
-        if (q.assunto2) temasFrequentes[q.assunto2] = (temasFrequentes[q.assunto2] || 0) + 1;
-        if (q.assunto3) temasFrequentes[q.assunto3] = (temasFrequentes[q.assunto3] || 0) + 1;
-      });
+questoesFiltradas.forEach(q => {
+  if (q.assunto) { // Garante que o assunto principal exista
+    temasFrequentes[q.assunto] = (temasFrequentes[q.assunto] || 0) + 1;
+  }
+});
+
 
       const sortedTemas = Object.entries(temasFrequentes)
         .sort(([, a], [, b]) => b - a)

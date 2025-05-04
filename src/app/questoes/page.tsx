@@ -53,7 +53,13 @@ export default function QuestoesPage() {
     if (edicaoFiltro !== 'Todas as Edições') result = result.filter(q => q.edicao === edicaoFiltro);
     if (anoFiltro !== 'Todos os Anos') result = result.filter(q => q.ano === parseInt(anoFiltro));
     if (areaFiltro !== 'Todas as Áreas') result = result.filter(q => q.area === areaFiltro);
-    if (assuntoFiltro !== 'Todos os Assuntos') result = result.filter(q => q.assunto === assuntoFiltro);
+    if (assuntoFiltro !== 'Todos os Assuntos') {
+      result = result.filter(q => 
+        q.assunto === assuntoFiltro || 
+        q.assunto2 === assuntoFiltro || 
+        q.assunto3 === assuntoFiltro
+      );
+    }
     if (mostrarSociologia) result = result.filter(q => q.area === 'Sociologia');
 
     setFilteredQuestoes(result);
